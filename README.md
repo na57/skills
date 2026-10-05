@@ -39,6 +39,27 @@ tell application "Calendar"
 end tell
 ```
 
+### make-explainer-video（讲解视频制作流水线）
+
+**路径**: `make-explainer-video/SKILL.md`
+
+**功能**: 把一章/一节的知识点做成「HTML 幻灯片讲解视频」：HTML 课件(PPT) → 抽取旁白 → Higgs 克隆音色配音 → 逐页截图 → 烧入中文字幕 + 推导停顿合成 1080p 视频。
+
+**适用场景**:
+- 把一份按页组织的 HTML 课件/讲义做成讲解视频
+- 需要**稳定音色**的中文物配音（全片同一把克隆声音）
+- 需要**烧入中文字幕**（公式处显示标准记法而非口语稿）
+- 需要「暂停推导」类互动（视频真留白，让学生动手）
+
+**核心特性**:
+- 阶段化流水线：`extract_narration.py` 抽旁白 → Higgs 批量配音 → Playwright 逐页截图 → `assemble2.py` 拼音频/烧字幕/合成
+- 已验证跑通：33 页 / 17.6 分钟 / 1080p25 / 40 段配音 / 7 处推导停顿，全片同一把音色
+- 自带模板与示例（`assets/templates/courseware-example.html`、`assets/examples/*`）
+
+**使用要求**:
+- 依赖 Python 脚本、Node（Playwright）、ffmpeg、Higgs 配音技能
+- 详见 `make-explainer-video/SKILL.md` 的阶段说明与「关键坑速查」
+
 ## 如何使用
 
 这些 Skills 可以在支持 Skill 系统的 AI 平台上使用，如:

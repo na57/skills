@@ -1,0 +1,209 @@
+{
+  "generatedAt": "2026-10-05 13:00:07",
+  "model": "bosonai/higgs-audio-v3-tts-4b",
+  "voice": "default",
+  "refAudio": "/Users/na57/.workbuddy/skills/higgs-voice-tts/assets/3-higgs-平台听力训练在用.mp3",
+  "total_s": 1017.24,
+  "items": [
+    {
+      "id": "s01",
+      "label": "",
+      "dur": 35.24
+    },
+    {
+      "id": "s02",
+      "label": "",
+      "dur": 34.52
+    },
+    {
+      "id": "s03",
+      "label": "",
+      "dur": 24.76
+    },
+    {
+      "id": "s04",
+      "label": "",
+      "dur": 7.84
+    },
+    {
+      "id": "s05",
+      "label": "",
+      "dur": 32.64
+    },
+    {
+      "id": "s06",
+      "label": "",
+      "dur": 31.84
+    },
+    {
+      "id": "s07",
+      "label": "",
+      "dur": 29.28
+    },
+    {
+      "id": "s08",
+      "label": "",
+      "dur": 28.84
+    },
+    {
+      "id": "s09",
+      "label": "",
+      "dur": 34.72
+    },
+    {
+      "id": "s10",
+      "label": "",
+      "dur": 10.4
+    },
+    {
+      "id": "s11",
+      "label": "",
+      "dur": 29.92
+    },
+    {
+      "id": "s12a",
+      "label": "",
+      "dur": 17.0
+    },
+    {
+      "id": "s12b",
+      "label": "",
+      "dur": 18.08
+    },
+    {
+      "id": "s13a",
+      "label": "",
+      "dur": 27.08
+    },
+    {
+      "id": "s13b",
+      "label": "",
+      "dur": 11.32
+    },
+    {
+      "id": "s14a",
+      "label": "",
+      "dur": 22.48
+    },
+    {
+      "id": "s14b",
+      "label": "",
+      "dur": 21.12
+    },
+    {
+      "id": "s15",
+      "label": "",
+      "dur": 30.36
+    },
+    {
+      "id": "s16",
+      "label": "",
+      "dur": 31.16
+    },
+    {
+      "id": "s17a",
+      "label": "",
+      "dur": 25.44
+    },
+    {
+      "id": "s17b",
+      "label": "",
+      "dur": 19.0
+    },
+    {
+      "id": "s18a",
+      "label": "",
+      "dur": 28.72
+    },
+    {
+      "id": "s18b",
+      "label": "",
+      "dur": 20.04
+    },
+    {
+      "id": "s19a",
+      "label": "",
+      "dur": 21.52
+    },
+    {
+      "id": "s19b",
+      "label": "",
+      "dur": 23.96
+    },
+    {
+      "id": "s20",
+      "label": "",
+      "dur": 32.76
+    },
+    {
+      "id": "s21",
+      "label": "",
+      "dur": 12.36
+    },
+    {
+      "id": "s22",
+      "label": "",
+      "dur": 33.24
+    },
+    {
+      "id": "s23",
+      "label": "",
+      "dur": 29.48
+    },
+    {
+      "id": "s24",
+      "label": "",
+      "dur": 30.88
+    },
+    {
+      "id": "s25",
+      "label": "",
+      "dur": 12.16
+    },
+    {
+      "id": "s26",
+      "label": "",
+      "dur": 32.8
+    },
+    {
+      "id": "s27",
+      "label": "",
+      "dur": 32.64
+    },
+    {
+      "id": "s28",
+      "label": "",
+      "dur": 29.28
+    },
+    {
+      "id": "s29",
+      "label": "",
+      "dur": 10.4
+    },
+    {
+      "id": "s30a",
+      "label": "",
+      "dur": 26.16
+    },
+    {
+      "id": "s30b",
+      "label": "",
+      "dur": 27.56
+    },
+    {
+      "id": "s31",
+      "label": "",
+      "dur": 31.24
+    },
+    {
+      "id": "s32",
+      "label": "",
+      "dur": 29.32
+    },
+    {
+      "id": "s33",
+      "label": "",
+      "dur": 29.68
+    }
+  ]
+}

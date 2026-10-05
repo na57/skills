@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>运动学复习讲解 · 匀变速直线运动</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+    processEscapes: true,
+    tags: 'none'
+  },
+  svg: { fontCache: 'global', scale: 1.05 },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<style>
+  :root{
+    --primary:#1a365d; --accent:#2b6cb0; --accent-light:#ebf8ff; --accent-border:#bee3f8;
+    --text:#2d3748; --muted:#718096; --border:#e2e8f0; --bg-light:#f7fafc;
+    --success:#38a169; --danger:#e53e3e; --warning:#dd6b20; --warn-bg:#fffaf0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:100%;height:100%;overflow:hidden;background:#0f172a;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif;
+    color:var(--text);
+  }
+  /* 固定舞台 1280x720，等比缩放铺满视口 */
+  #stage{
+    position:absolute; left:50%; top:50%;
+    width:1280px; height:720px;
+    transform:translate(-50%,-50%) scale(1);
+    transform-origin:center center;
+    background:#ffffff;
+    box-shadow:0 0 40px rgba(0,0,0,.4);
+    overflow:hidden;
+  }
+  .slide{
+    position:absolute; inset:0;
+    padding:36px 60px 52px;
+    display:none;
+    flex-direction:column;
+    background:#ffffff;
+    opacity:0;
+    transition:opacity .35s ease;
+  }
+  .slide.active{ display:flex; opacity:1; }
+
+  /* 顶部进度条 */
+  #progress{ position:absolute; top:0; left:0; height:6px; background:var(--accent); width:0; z-index:50; transition:width .35s; }
+
+  /* 标题页 / 章节分隔页 */
+  .slide-cover, .slide-divider{ justify-content:center; align-items:center; text-align:center; }
+  .slide-cover{ background:linear-gradient(135deg,#1a365d 0%,#2b6cb0 100%); color:#fff; }
+  .slide-cover .kicker{ font-size:22px; letter-spacing:6px; opacity:.85; margin-bottom:18px;}
+  .slide-cover h1{ font-size:64px; font-weight:800; line-height:1.2; margin-bottom:22px; letter-spacing:2px;}
+  .slide-cover .sub{ font-size:26px; opacity:.92; margin-bottom:36px;}
+  .slide-cover .meta{ font-size:18px; opacity:.8; line-height:2;}
+  .slide-cover .divider{ width:160px;height:5px;background:#fff;opacity:.6;margin:0 auto 30px;border-radius:3px;}
+
+  .slide-divider{ background:linear-gradient(135deg,#2b6cb0 0%,#1a365d 100%); color:#fff;}
+  .slide-divider .num{ font-size:30px; opacity:.7; letter-spacing:4px; margin-bottom:10px;}
+  .slide-divider h2{ font-size:56px; font-weight:800; letter-spacing:3px;}
+  .slide-divider .en{ font-size:20px; opacity:.8; margin-top:16px; letter-spacing:2px;}
+
+  /* 内容页头 */
+  .slide-head{ display:flex; align-items:baseline; gap:16px; border-bottom:3px solid var(--accent); padding-bottom:9px; margin-bottom:12px;}
+  .slide-head .sec{ font-size:17px; color:var(--accent); font-weight:700; background:var(--accent-light); padding:3px 11px; border-radius:6px;}
+  .slide-head h3{ font-size:30px; color:var(--primary); font-weight:700;}
+  .slide-body{ flex:1; display:flex; flex-direction:column; justify-content:center; min-height:0; }
+
+  p{ font-size:21px; line-height:1.65; margin-bottom:8px; text-align:justify;}
+  .lead{ font-size:23px; color:#374151; line-height:1.75;}
+  ul,ol{ margin:0 0 8px 26px; font-size:21px; line-height:1.7;}
+  li{ margin-bottom:5px;}
+  strong{ color:var(--primary); }
+
+  /* 公式块 */
+  .formula{ background:var(--accent-light); border-left:5px solid var(--accent); border-radius:0 10px 10px 0; padding:9px 22px; margin:9px 0; text-align:center; font-size:23px;}
+  .formula-concl{ background:#fffaf0; border-left:5px solid var(--warning);}
+  .MathJax{ font-size:1.05em !important; }
+
+  /* 表格 */
+  table{ width:100%; border-collapse:collapse; margin:10px 0; font-size:20px;}
+  th{ background:var(--accent); color:#fff; padding:9px 12px; text-align:center; font-weight:600;}
+  td{ padding:8px 12px; border:1px solid var(--border); text-align:center; vertical-align:middle;}
+  tr:nth-child(even) td{ background:var(--bg-light);}
+
+  /* 卡片 / 提示框 */
+  .card{ background:var(--accent-light); border:1px solid var(--accent-border); border-radius:12px; padding:12px 20px; margin:10px 0;}
+  .tip{ background:#ebf8ff; border-left:5px solid var(--accent); border-radius:0 10px 10px 0; padding:10px 20px; margin:10px 0; font-size:20px; color:#2c5282;}
+  .deep{ background:#f0fff4; border-left:5px solid var(--success); border-radius:0 10px 10px 0; padding:10px 20px; margin:10px 0; font-size:20px; color:#22543d;}
+
+  /* 互动暂停卡 */
+  .pause{
+    background:var(--warn-bg); border:2px dashed var(--warning); border-radius:14px;
+    padding:12px 22px; margin:12px 0; display:flex; align-items:center; gap:16px;
+    box-shadow:0 4px 14px rgba(221,107,32,.12);
+  }
+  .pause .icon{ font-size:38px; line-height:1; }
+  .pause .txt b{ color:var(--warning); font-size:22px; }
+  .pause .txt p{ font-size:19px; color:#744210; margin:3px 0 0; }
+
+  /* 思考互动卡 */
+  .think{ background:#faf5ff; border:2px solid #9f7aea; border-radius:14px; padding:12px 20px; margin:12px 0; display:flex; gap:14px; align-items:flex-start;}
+  .think .icon{ font-size:32px; }
+  .think .txt b{ color:#6b46c1; font-size:21px;}
+  .think .txt p{ font-size:19px; color:#44337a; margin:3px 0 0;}
+
+  /* 两栏布局 */
+  .cols{ display:flex; gap:28px; align-items:stretch; }
+  .col{ flex:1; }
+  .cols img{ max-width:100%; border-radius:10px; box-shadow:0 2px 12px rgba(0,0,0,.1); }
+
+  .figure{ text-align:center; }
+  .figure img{ max-height:430px; max-width:100%; border-radius:10px; box-shadow:0 2px 12px rgba(0,0,0,.12);}
+  .figure .cap{ font-size:16px; color:var(--muted); margin-top:8px;}
+
+  /* 页脚 */
+  #footer{ position:absolute; bottom:0; left:0; right:0; height:40px; display:flex; align-items:center; justify-content:space-between; padding:0 30px; font-size:15px; color:#94a3b8; background:rgba(247,250,252,.85); border-top:1px solid var(--border); z-index:40;}
+  #footer .brand{ font-weight:600; color:var(--accent); }
+
+  /* 导航按钮 */
+  .nav{ position:absolute; bottom:48px; right:40px; display:flex; gap:12px; z-index:45;}
+  .nav button{ width:54px; height:54px; border-radius:50%; border:none; background:var(--accent); color:#fff; font-size:24px; cursor:pointer; box-shadow:0 3px 10px rgba(43,108,176,.4); display:flex; align-items:center; justify-content:center;}
+  .nav button:hover{ background:var(--primary); }
+  .nav button:disabled{ background:#cbd5e0; cursor:default; box-shadow:none;}
+
+  /* 帮助提示 */
+  #hint{ position:absolute; bottom:48px; left:40px; font-size:14px; color:#94a3b8; z-index:45;}
+
+  .stars{ color:#d69e2e; letter-spacing:2px; }
+
+  /* 隐藏 UI（用于视频截图） */
+  body.autohide #progress, body.autohide #footer, body.autohide .nav, body.autohide #hint{ display:none !important; }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <div id="progress"></div>
+
+  <!-- 0 封面 -->
+  <section class="slide slide-cover active" data-narration="同学们好，欢迎来到运动学复习课。在正式开始之前，请先准备好纸和笔——这一讲里有多处公式推导，你需要亲手算一遍，才能真正把知识变成自己的。这一讲，我们要把高中物理开篇的运动学，特别是匀变速直线运动，完整、深入地过一遍。无论你是高一同步学习，还是高考一轮复习，这节课都能帮你把零散的知识点串成一张网。中间遇到推导，我会请你暂停视频，自己推一遍再继续播放。准备好了吗？我们开始。">
+    <div class="kicker">高 中 物 理 · 必 修 一 · 3.1</div>
+    <h1>运动学复习讲解</h1>
+    <div class="sub">运动的描述 与 匀变速直线运动</div>
+    <div class="divider"></div>
+    <div class="meta">
+      高一同步巩固 · 高考一轮复习通用<br>
+      重点 · 难点 · 公式推导 · 深度理解
+    </div>
+  </section>
+
+  <!-- 1 复习目标 -->
+  <section class="slide" data-narration="先说清楚，这一讲我们到底要搞定什么。第一，把描述运动的四个核心概念——质点、参考系、位移、速度、加速度——真正理解透，尤其是加速度这个最容易错的概念。第二，三个基本公式和三个重要推论，不仅要会用，更要能合上书独立推导。第三，掌握x-t图和v-t图这两类图象的语言。第四，拿下追及相遇这个重点难点。最后，把逆向思维、分段法这些解题思想内化成自己的本能。">
+    <div class="slide-head"><span class="sec">导学</span><h3>本节复习目标</h3></div>
+    <div class="slide-body">
+      <ul>
+        <li><strong>概念通透</strong>：质点与参考系、位移与路程、速度与速率、加速度的物理意义与易错点</li>
+        <li><strong>公式会推</strong>：三个基本公式 + 三个推论，合上书能独立推导，并理解每一步</li>
+        <li><strong>图象会读</strong>：x-t 图与 v-t 图的斜率、面积、交点、截距的物理意义</li>
+        <li><strong>难题能解</strong>：追及相遇问题的临界条件与四种解法</li>
+        <li><strong>思想内化</strong>：逆向思维、对称法、分段法、整体法的灵活选用</li>
+      </ul>
+      <div class="deep">💡 学习的层次：记住公式 → 会用公式 → 会推导公式 → 理解公式"为什么对"。这一讲，我们直奔第四层。</div>
+    </div>
+  </section>
+
+  <!-- 2 知识地图 -->
+  <section class="slide" data-narration="这是整章的知识地图。运动学回答三个问题：用什么量描述运动？这些量之间有什么关系？怎么用图象表达运动？从核心概念出发，到匀变速直线运动的公式体系，再到图象专题、追及相遇，最后是一系列解题思想。接下来我们就沿着这张地图，一块一块地啃。">
+    <div class="slide-head"><span class="sec">总览</span><h3>运动学知识地图</h3></div>
+    <div class="slide-body figure">
+      <img src="images/knowledge_map.png" alt="运动学知识体系">
+      <div class="cap">图1：运动学知识体系结构图 —— 沿着它，把零散知识点串成网</div>
+    </div>
+  </section>
+
+  <!-- 3 模块一 分隔 -->
+  <section class="slide slide-divider" data-narration="第一部分，核心概念。这是整栋力学大楼的地基，地基不牢，后面公式再熟也用不对。">
+    <div class="num">模 块 一</div>
+    <h2>核心概念深度理解</h2>
+    <div class="en">质点 · 参考系 · 位移 · 速度 · 加速度</div>
+  </section>
+
+  <!-- 4 质点与参考系 -->
+  <section class="slide" data-narration="先说质点和参考系。质点是用来代替物体的有质量的点，是一个理想化模型。判断标准只有一个：物体的大小和形状对研究的问题能不能忽略。记住，体积小不一定能看成质点，质量大也不一定不能——地球公转时就能看成质点，但研究自转就不能。参考系是假定不动的标准物，选取任意，但通常选地面。一个易错点：选不同的参考系，观察结果可能完全不同。">
+    <div class="slide-head"><span class="sec">概念</span><h3>质点与参考系</h3></div>
+    <div class="slide-body">
+      <div class="cols">
+        <div class="col">
+          <div class="card"><b>质点</b>：代替物体的有质量的点，理想化模型。<br>判断标准：大小形状对问题的影响<b>可忽略</b>。</div>
+          <ul>
+            <li>❌ 体积小 ≠ 一定能看成质点</li>
+            <li>❌ 质量大 ≠ 不能看成质点</li>
+            <li>✅ 同一物体，有时能、有时不能</li>
+          </ul>
+        </div>
+        <div class="col">
+          <div class="card"><b>参考系</b>：假定不动的参照物。</div>
+          <ul>
+            <li><b>任意性</b>：选取任意（不能选自身）</li>
+            <li><b>标准性</b>：选它即假定它不动</li>
+            <li><b>差异性</b>：不同参考系结果可能不同</li>
+            <li><b>原则</b>：通常取地面或相对地面静止物</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 位移与路程 -->
+  <section class="slide" data-narration="位移和路程，是最容易混的一对。位移是从初位置指向末位置的有向线段，是矢量，只和初末位置有关，和路径无关。路程是轨迹的长度，是标量，和路径有关。只有在单向直线运动中，位移的大小才等于路程；一般情况下，路程大于等于位移大小。为什么要引入位移？因为动能定理、势能变化这些核心规律，关心的就是初末位置的变化，而不是你具体绕了什么路。">
+    <div class="slide-head"><span class="sec">概念</span><h3>位移与路程</h3></div>
+    <div class="slide-body">
+      <table>
+        <thead><tr><th>物理量</th><th>位移</th><th>路程</th></tr></thead>
+        <tbody>
+          <tr><td>定义</td><td>初→末位置的有向线段</td><td>运动轨迹的长度</td></tr>
+          <tr><td>性质</td><td>矢量（大小+方向）</td><td>标量（只有大小）</td></tr>
+          <tr><td>大小</td><td>与路径无关</td><td>与路径有关</td></tr>
+          <tr><td>联系</td><td>单向直线：大小=路程</td><td>路程 ≥ 位移大小</td></tr>
+        </tbody>
+      </table>
+      <div class="deep">🤔 深度思考：为什么引入"位移"？因为动能定理、势能变化只关心初末位置的变化，而非具体路径。位移是数学精确描述运动的第一步。</div>
+    </div>
+  </section>
+
+  <!-- 6 速度与速率 -->
+  <section class="slide" data-narration="速度和速率。平均速度是位移和时间的比值，对应一段时间；瞬时速度是当时间间隔趋近零时位移变化率的极限，对应一个时刻，方向沿轨迹切线。平均速率是路程除以时间，瞬时速率是瞬时速度的大小。关键提醒：平均速率不等于平均速度的大小，除非是单向直线运动。速度是矢量，速率是标量，永远不能说速度等于速率。">
+    <div class="slide-head"><span class="sec">概念</span><h3>速度与速率</h3></div>
+    <div class="slide-body">
+      <table>
+        <thead><tr><th></th><th>平均速度</th><th>瞬时速度</th></tr></thead>
+        <tbody>
+          <tr><td>定义</td><td>位移 / 时间</td><td>$\Delta t\to0$ 时 $\frac{\Delta x}{\Delta t}$ 的极限</td></tr>
+          <tr><td>公式</td><td>$\bar{v}=\frac{\Delta x}{\Delta t}$</td><td>$v=\lim_{\Delta t\to0}\frac{\Delta x}{\Delta t}$</td></tr>
+          <tr><td>对应</td><td>一段时间（位移）</td><td>一个时刻（位置）</td></tr>
+          <tr><td>矢量性</td><td>矢量，同向位移</td><td>矢量，沿轨迹切线</td></tr>
+        </tbody>
+      </table>
+      <div class="tip">⚠️ 平均速率 ≠ 平均速度的大小（仅单向直线运动才相等）；速度与速率：矢量 vs 标量，永不等价。</div>
+    </div>
+  </section>
+
+  <!-- 7 加速度 -->
+  <section class="slide" data-narration="加速度，是整个运动学最容易被误解的概念。它的定义是速度变化量除以时间，描述的是速度变化的快慢，而不是速度的大小，也不是速度变化量的大小。它是矢量，方向与速度变化量相同。请看这张辨析表：速度大，加速度不一定大，比如匀速飞行的飞机；加速度大，速度也不一定大，比如刚启动的火箭。判断速度是增是减，不看加速度大小，只看加速度和速度的方向关系——同向加速，反向减速。">
+    <div class="slide-head"><span class="sec">概念</span><h3>加速度：描述"速度变化快慢"</h3></div>
+    <div class="slide-body">
+      <div class="formula">$$a=\frac{\Delta v}{\Delta t}=\frac{v_t-v_0}{t}$$ <span style="font-size:18px;color:var(--muted)">单位：$\mathrm{m/s^2}$</span></div>
+      <table>
+        <thead><tr><th>概念</th><th>含义</th><th>关系</th></tr></thead>
+        <tbody>
+          <tr><td>速度大</td><td>运动得快</td><td>加速度不一定大（匀速飞机）</td></tr>
+          <tr><td>速度变化量大</td><td>改变得多</td><td>加速度不一定大（还看时间）</td></tr>
+          <tr><td>加速度大</td><td>变化得快</td><td>速度不一定大（刚启动火箭）</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 8 加速度易错判断 -->
+  <section class="slide" data-narration="这一页是加速度的经典易错判断，建议停下来记在脑子里。第一，速度为零，加速度不一定为零——竖直上抛到最高点，速度为零但加速度还是g。第二，加速度为零，速度也不一定为零——匀速直线运动就是这样。第三，加速度增大，速度不一定增大——如果加速度和速度反向，加速度越大，速度减小得越快。一句话总结：判断速度增减，看加速度和速度的方向关系，同向加速，反向减速。">
+    <div class="slide-head"><span class="sec">易错</span><h3>加速度 · 经典易错判断</h3></div>
+    <div class="slide-body">
+      <ul>
+        <li>❌ "速度为零，加速度一定为零" —— 错！（竖直上抛最高点，$v=0$，但 $a=g$）</li>
+        <li>❌ "加速度为零，速度一定为零" —— 错！（匀速直线运动，$a=0$，但 $v\neq0$）</li>
+        <li>❌ "加速度增大，速度一定增大" —— 错！（$a$ 与 $v$ 反向时，$a$ 越大 $v$ 减得越快）</li>
+      </ul>
+      <div class="deep">✅ 判断速度增减，只看 <b>加速度与速度的方向关系</b>：同向加速，反向减速。与加速度大小无关。</div>
+    </div>
+  </section>
+
+  <!-- 9 模块二 分隔 -->
+  <section class="slide slide-divider" data-narration="第二部分，匀变速直线运动的公式体系。这是运动学的核心武器库。记住一句话：会推导，才算真正拥有这个公式。">
+    <div class="num">模 块 二</div>
+    <h2>匀变速直线运动公式体系</h2>
+    <div class="en">三个基本公式 · 三个重要推论 · 比例关系</div>
+  </section>
+
+  <!-- 10 三个基本公式总览 -->
+  <section class="slide" data-narration="匀变速直线运动，加速度a恒定。我们从加速度定义出发，可以推出三个基本公式。第一个是速度公式，描述速度和时间的关系；第二个是位移公式，描述位移和时间的关系；第三个是速度位移公式，描述速度和位移的关系，它不含时间t，所以题目不涉及时间时最好用。接下来，我们对每一个公式，都亲手推一遍——请准备好纸笔。">
+    <div class="slide-head"><span class="sec">公式</span><h3>三个基本公式（必须会推导）</h3></div>
+    <div class="slide-body">
+      <div class="formula-concl formula">$$v = v_0 + at \qquad x = v_0 t + \frac{1}{2}at^2 \qquad v^2 - v_0^2 = 2ax$$</div>
+      <div class="cols" style="margin-top:6px">
+        <div class="col card">① <b>速度公式</b>：速度 ↔ 时间</div>
+        <div class="col card">② <b>位移公式</b>：位移 ↔ 时间</div>
+        <div class="col card">③ <b>速度位移公式</b>：速度 ↔ 位移（不含 $t$）</div>
+      </div>
+      <div class="tip" style="margin-top:10px">⚠️ 三个都是<b>矢量式</b>，运算时务必先规定正方向，给每个量带上正负号。</div>
+    </div>
+  </section>
+
+  <!-- 11 公式一推导 -->
+  <section class="slide" data-narration="我们要推导第一个，速度公式。已知的出发点只有一个：加速度的定义式，a 等于 v 减 v0 除以 t。现在，请<b>暂停视频</b>，拿出纸笔，独立把它变形为 v 等于 v0 加 at，推完之后再继续播放。你推出来了吗？把分母 t 乘到左边，就得到 v 减 v0 等于 at，也就是 v 等于 v0 加 at。记住它是矢量式，v0、a、v 都要带符号，适用条件就是匀变速直线运动、a 恒定。">
+    <div class="slide-head"><span class="sec">推导 ①</span><h3>速度公式 $v = v_0 + at$</h3></div>
+    <div class="slide-body">
+      <p>由加速度定义式出发：</p>
+      <div class="formula">$$a=\frac{v-v_0}{t}$$</div>
+      <div class="pause">
+        <div class="icon">🛑</div>
+        <div class="txt"><b>暂停视频！</b><p>拿出纸笔，从定义式独立推导出 $v = v_0 + at$，再继续。</p></div>
+      </div>
+      <div class="formula-concl formula">$$\boldsymbol{v = v_0 + at}$$</div>
+      <div class="tip">描述<b>速度—时间</b>关系 · 矢量式，注意正负号 · 适用：$a$ 恒定</div>
+    </div>
+  </section>
+
+  <!-- 12 公式二推导 -->
+  <section class="slide" data-narration="第二个，位移公式，这是三个里最容易写错的一个。已知两个东西：匀变速运动中速度均匀变化，所以平均速度等于初末速度的平均值；以及我们刚推出来的速度公式。现在请<b>暂停视频</b>，拿出纸笔，由位移等于平均速度乘时间，把 v 用 v0 加 at 代入，自己整理出位移公式，推完之后再继续播放。你推出来了吗？代入后整理，得到的就是 v0 t 加上二分之一 a t 平方。注意，位移和时间成二次函数关系，它同样是矢量式。">
+    <div class="slide-head"><span class="sec">推导 ②</span><h3>位移公式 $x = v_0 t + \frac{1}{2}at^2$</h3></div>
+    <div class="slide-body">
+      <p>匀变速运动速度均匀变化 → <b>平均速度 = 初末速度平均值</b>：</p>
+      <div class="formula">$$\bar{v}=\frac{v_0+v}{2},\quad x=\bar{v}\,t=\frac{v_0+v}{2}\,t$$</div>
+      <div class="formula">$$\text{代入 } v=v_0+at:\quad x=\frac{v_0+v_0+at}{2}\,t=\frac{2v_0+at}{2}\,t$$</div>
+      <div class="pause">
+        <div class="icon">🛑</div>
+        <div class="txt"><b>暂停视频！</b><p>自己把最后一步展开并整理，得到位移公式，再继续。</p></div>
+      </div>
+      <div class="formula-concl formula">$$\boldsymbol{x = v_0 t + \frac{1}{2} a t^2}$$</div>
+    </div>
+  </section>
+
+  <!-- 13 公式三推导 -->
+  <section class="slide" data-narration="第三个，速度位移公式，三个里推导最繁琐、但考试最常用。思路是：从速度公式解出时间 t，代入位移公式，通分化简，把 t 消掉。现在请<b>暂停视频</b>，拿出纸笔，独立推出 v 平方减 v0 平方等于 2ax，推完之后再继续播放。你推出来了吗？从速度公式得 t 等于 v 减 v0 除以 a，代入位移公式后通分、展开、消去 t，最终得到 v 平方减 v0 平方等于 2ax。它最大的特点是<b>不含时间 t</b>，所以当题目根本没给时间、也不求时间时，用它最方便。">
+    <div class="slide-head"><span class="sec">推导 ③</span><h3>速度位移公式 $v^2 - v_0^2 = 2ax$</h3></div>
+    <div class="slide-body">
+      <p>从速度公式解 $t=\dfrac{v-v_0}{a}$，代入位移公式：</p>
+      <div class="formula">$$x=v_0\cdot\frac{v-v_0}{a}+\frac12 a\left(\frac{v-v_0}{a}\right)^2=\frac{v_0v-v_0^2}{a}+\frac{(v-v_0)^2}{2a}$$</div>
+      <div class="pause">
+        <div class="icon">🛑</div>
+        <div class="txt"><b>暂停视频！</b><p>通分、展开 $(v-v_0)^2$，消去 $t$，独立推出 $v^2-v_0^2=2ax$，再继续。</p></div>
+      </div>
+      <div class="formula-concl formula">$$\boldsymbol{v^2 - v_0^2 = 2ax}$$</div>
+      <div class="tip">🔑 <b>不含时间 $t$</b> → 题目不涉及时间时，优先选用！</div>
+    </div>
+  </section>
+
+  <!-- 14 公式选用原则 -->
+  <section class="slide" data-narration="三个公式怎么选？原则只有一个：看已知量和待求量里包含哪几个字母。如果里面有v、v0、a、t，用速度公式；有x、v0、a、t，用位移公式；有v、v0、a、x，用速度位移公式。说白了，哪个公式已知的量最多、未知的量最少，就先选哪个。不要拿起来就套，先看清楚再动手。">
+    <div class="slide-head"><span class="sec">方法</span><h3>三个基本公式 · 选用原则</h3></div>
+    <div class="slide-body">
+      <table>
+        <thead><tr><th>已知/求解涉及</th><th>选用公式</th></tr></thead>
+        <tbody>
+          <tr><td>$v, v_0, a, t$</td><td>速度公式 $v=v_0+at$</td></tr>
+          <tr><td>$x, v_0, a, t$</td><td>位移公式 $x=v_0t+\frac12at^2$</td></tr>
+          <tr><td>$v, v_0, a, x$</td><td>速度位移公式 $v^2-v_0^2=2ax$</td></tr>
+        </tbody>
+      </table>
+      <div class="deep">✅ 核心原则：<b>哪个公式已知量最多、未知量最少，就先用哪个</b>。先看量，再选式。</div>
+    </div>
+  </section>
+
+  <!-- 15 三个推论总览 -->
+  <section class="slide" data-narration="在三个基本公式之上，我们还能推出三个重要推论。推论一：平均速度等于中间时刻的瞬时速度，打点计时器求某点速度就靠它。推论二：中间位置的速度，等于前后速度平方平均再开方。推论三：连续相等时间内的位移差是常数a T平方，也就是逐差公式，用来求加速度、判断是不是匀变速。这三个推论，考试极高频，也必须会推导。">
+    <div class="slide-head"><span class="sec">推论</span><h3>三个重要推论（必须会推导）</h3></div>
+    <div class="slide-body">
+      <div class="formula-concl formula">$$\bar{v}=v_{\frac{t}{2}}=\frac{v_0+v}{2}\qquad v_{\frac{x}{2}}=\sqrt{\frac{v_0^2+v^2}{2}}\qquad \Delta x=aT^2$$</div>
+      <div class="cols" style="margin-top:6px">
+        <div class="col card">① 平均 = 中间时刻速度<br><span style="font-size:16px;color:var(--muted)">打点计时器求瞬时速度</span></div>
+        <div class="col card">② 中间位置速度<br><span style="font-size:16px;color:var(--muted)">$v_{x/2} > v_{t/2}$</span></div>
+        <div class="col card">③ 逐差公式<br><span style="font-size:16px;color:var(--muted)">求a / 判匀变速</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 推论一 -->
+  <section class="slide" data-narration="推论一，平均速度等于中间时刻的瞬时速度，这是打点计时器求某点速度的理论依据。已知中间时刻的速度等于 v0 加 a 乘二分之 t，以及位移公式。现在请<b>暂停视频</b>，拿出纸笔，自己证明平均速度也等于这个值，并进一步写成初末速度的平均值，推完之后再继续播放。你证明了吧？把位移公式除以 t，得到 v0 加二分之 a t，和中间时刻速度完全一样；再代入 v 等于 v0 加 at，也就等于初末速度的平均值。应用场景很明确：打点计时器里求某点的瞬时速度，就用它。">
+    <div class="slide-head"><span class="sec">推导 ①</span><h3>推论一：平均 = 中间时刻速度</h3></div>
+    <div class="slide-body">
+      <div class="formula">$$\text{中间时刻速度：}\quad v_{\frac{t}{2}}=v_0+a\cdot\frac{t}{2}$$</div>
+      <div class="formula">$$\text{平均速度：}\quad \bar{v}=\frac{x}{t}=\frac{v_0t+\frac12at^2}{t}=v_0+\frac12at=v_0+a\cdot\frac{t}{2}$$</div>
+      <div class="pause">
+        <div class="icon">🛑</div>
+        <div class="txt"><b>暂停视频！</b><p>自己证明 $\bar{v}=v_{t/2}$，并进一步写成 $\frac{v_0+v}{2}$。</p></div>
+      </div>
+      <div class="formula-concl formula">$$\boldsymbol{\bar{v}=v_{\frac{t}{2}}=\frac{v_0+v}{2}}$$</div>
+    </div>
+  </section>
+
+  <!-- 17 推论二 -->
+  <section class="slide" data-narration="推论二，中间位置的速度。把总位移分成前后两段，每段都是二分之 x。对前半段用一次速度位移公式，对后半段再用一次，两个式子右边都等于 a x。现在请<b>暂停视频</b>，拿出纸笔，由这两个式子相等，自己移项推出 v 下标 x/2 等于根号下 v0 平方加 v 平方除以二，推完之后再继续播放。推出来了吗？让两式相等、移项，就得到二倍的 v 下标 x/2 平方等于 v0 平方加 v 平方，开方即得。这里有个有意思的结论：无论加速还是减速，中间位置的速度都大于中间时刻的速度，只有匀速时才相等。">
+    <div class="slide-head"><span class="sec">推导 ②</span><h3>推论二：中间位置速度</h3></div>
+    <div class="slide-body">
+      <div class="formula">$$\text{前半段：}\;v_{\frac{x}{2}}^2-v_0^2=2a\cdot\frac{x}{2}=ax \;\;(1)\qquad \text{后半段：}\;v^2-v_{\frac{x}{2}}^2=2a\cdot\frac{x}{2}=ax \;\;(2)$$</div>
+      <div class="pause">
+        <div class="icon">🛑</div>
+        <div class="txt"><b>暂停视频！</b><p>由(1)(2)相等，移项推出 $v_{x/2}=\sqrt{\frac{v_0^2+v^2}{2}}$。</p></div>
+      </div>
+      <div class="formula-concl formula">$$\boldsymbol{v_{\frac{x}{2}}=\sqrt{\frac{v_0^2+v^2}{2}}}$$</div>
+      <div class="deep">🤔 为什么总是 $v_{x/2} > v_{t/2}$？速度均匀变化时，物体在后半段时间走得更远，所以"位移中点"比"时间中点"更靠后，对应速度更大（匀速时取等）。</div>
+    </div>
+  </section>
+
+  <!-- 18 推论三 -->
+  <section class="slide" data-narration="推论三，逐差公式。已知第1个 T 内和第2个 T 内的位移表达式。现在请<b>暂停视频</b>，拿出纸笔，自己写出第3个 T 内的位移 x3，并计算相邻两段的位移差 x2 减 x1、x3 减 x2，观察规律，推完之后再继续播放。你发现了吧？x1 是 v0 T 加二分之一 a T 平方，x2 是 v0 T 加二分之三 a T 平方，相邻相减，v0 T 项消掉，差正好是 a T 平方。推广一下，第 m 段减第 n 段等于 m 减 n 倍的 a T 平方。这个式子是打点计时器求加速度、判断匀变速的核心。">
+    <div class="slide-head"><span class="sec">推导 ③</span><h3>推论三：逐差公式 $\Delta x = aT^2$</h3></div>
+    <div class="slide-body">
+      <p>第1、2个 $T$ 内位移：</p>
+      <div class="formula">$$x_1=v_0T+\frac12aT^2,\quad x_2=v_0T+\frac32aT^2$$</div>
+      <div class="pause">
+        <div class="icon">🛑</div>
+        <div class="txt"><b>暂停视频！</b><p>写出 $x_3$，并计算 $x_2-x_1$ 与 $x_3-x_2$，观察位移差。</p></div>
+      </div>
+      <div class="formula-concl formula">$$\boldsymbol{\Delta x = aT^2 \quad \Longrightarrow \quad x_m-x_n=(m-n)aT^2}$$</div>
+      <div class="tip">🔧 应用：打点计时器求加速度（逐差法）、判断是否为匀变速直线运动。</div>
+    </div>
+  </section>
+
+  <!-- 19 比例关系 -->
+  <section class="slide" data-narration="初速度为零的匀加速运动，有一组漂亮的比例关系，是快速解题的利器。五个比例：各时刻速度比1比2比3；各段时间内位移比1平方比2平方比3平方；连续相等时间内位移比1比3比5；通过前x、前2x…的时间比1比根号2比根号3；通过连续相等位移的时间比1比根号2减1比根号3减根号2。记住，这些只适用于初速度为零的匀加速，末速度为零的匀减速可以用逆向思维反过来用。">
+    <div class="slide-head"><span class="sec">比例</span><h3>初速为零匀加速 · 比例关系</h3></div>
+    <div class="slide-body">
+      <ul>
+        <li>速度比：$v_1:v_2:\dots:v_n = 1:2:3:\dots:n$　　　（由 $v=at$）</li>
+        <li>位移比（前 $nT$ 内）：$1^2:2^2:3^2:\dots:n^2$　（由 $x=\tfrac12at^2$）</li>
+        <li>连续相等时间位移比：$1:3:5:\dots:(2N-1)$</li>
+        <li>通过前 $x,2x,\dots$ 时间比：$1:\sqrt2:\sqrt3:\dots:\sqrt n$　（由 $t=\sqrt{2x/a}$）</li>
+        <li>通过连续相等位移时间比：$1:(\sqrt2-1):(\sqrt3-\sqrt2):\dots$</li>
+      </ul>
+      <div class="tip">⚠️ 仅适用于 <b>初速度为零</b> 的匀加速；末速为零的匀减速 → 用<b>逆向思维</b>再套比例。</div>
+    </div>
+  </section>
+
+  <!-- 20 模块三 分隔 -->
+  <section class="slide slide-divider" data-narration="第三部分，运动图象。图象是高考的高频考点，也是把抽象公式变直观的利器。学图象要做到三会：会读图、会画图、会用图。">
+    <div class="num">模 块 三</div>
+    <h2>运动图象专题</h2>
+    <div class="en">x-t 图 · v-t 图 · 图象转换</div>
+  </section>
+
+  <!-- 21 x-t 图 -->
+  <section class="slide" data-narration="先看x-t图象，位移时间图象。纵坐标是从起点算起的位置，横坐标是时间。它最重要的特征是斜率代表速度：斜率为正，速度方向与正方向相同；斜率为负，相反；斜率绝对值越大，速度越大。水平直线是静止，倾斜直线是匀速，曲线是变速。两图线交点表示两物体相遇，同一时刻在同一位置。纵轴截距是初始位置。看图前第一件事：先看坐标轴！">
+    <div class="slide-head"><span class="sec">图象</span><h3>x-t 图象（位移—时间）</h3></div>
+    <div class="slide-body">
+      <div class="cols">
+        <div class="col" style="flex:1.1">
+          <table>
+            <thead><tr><th>特征</th><th>物理意义</th></tr></thead>
+            <tbody>
+              <tr><td>斜率</td><td>速度 $v$</td></tr>
+              <tr><td>水平直线</td><td>静止</td></tr>
+              <tr><td>倾斜直线</td><td>匀速直线运动</td></tr>
+              <tr><td>曲线</td><td>匀变速（速度在变）</td></tr>
+              <tr><td>两线交点</td><td>两物体<b>相遇</b></td></tr>
+              <tr><td>纵截距</td><td>$t=0$ 初始位置</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="col figure">
+          <img src="images/xt_diagram.png" alt="x-t 图象">
+          <div class="cap">图2：匀速 vs 往返运动</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 22 v-t 图 -->
+  <section class="slide" data-narration="再看v-t图象，这是更重要的一个。纵坐标瞬时速度，横坐标时间，斜率代表加速度。水平直线是匀速，倾斜直线是匀变速，曲线是变加速。最关键的是：图线和时间轴围成的面积代表位移，上方为正，下方为负。注意一个高频坑：两v-t图线交点表示速度相等，绝不是相遇！纵轴截距是初速度。">
+    <div class="slide-head"><span class="sec">图象</span><h3>v-t 图象（速度—时间）</h3></div>
+    <div class="slide-body">
+      <div class="cols">
+        <div class="col" style="flex:1.1">
+          <table>
+            <thead><tr><th>特征</th><th>物理意义</th></tr></thead>
+            <tbody>
+              <tr><td>斜率</td><td>加速度 $a$</td></tr>
+              <tr><td>水平直线</td><td>匀速（$a=0$）</td></tr>
+              <tr><td>倾斜直线</td><td>匀变速</td></tr>
+              <tr><td>图线面积</td><td><b>位移</b>（上正下负）</td></tr>
+              <tr><td>两线交点</td><td>速度相等（<b>非相遇！</b>）</td></tr>
+              <tr><td>纵截距</td><td>$t=0$ 初速度</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="col figure">
+          <img src="images/vt_diagram.png" alt="v-t 图象">
+          <div class="cap">图3：匀速/匀加速/匀减速/变加速</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 23 图象转换与要诀 -->
+  <section class="slide" data-narration="图象之间可以互相转换：从x-t到v-t，求各段斜率画速度；从v-t到x-t，求各段面积累加画位移；从v-t到a-t，求各段斜率画加速度。最后送你图象题四步要诀：第一步看坐标轴，到底是x-t还是v-t，别一上来就看形状；第二步看斜率；第三步看面积，注意x-t图面积没意义；第四步看截距和交点。">
+    <div class="slide-head"><span class="sec">图象</span><h3>图象转换 · 解题要诀</h3></div>
+    <div class="slide-body">
+      <table>
+        <thead><tr><th>已知</th><th>求</th><th>方法</th></tr></thead>
+        <tbody>
+          <tr><td>x-t 图</td><td>v-t 图</td><td>求各段斜率（速度）</td></tr>
+          <tr><td>v-t 图</td><td>x-t 图</td><td>求各段面积（位移）累加</td></tr>
+          <tr><td>v-t 图</td><td>a-t 图</td><td>求各段斜率（加速度）</td></tr>
+        </tbody>
+      </table>
+      <div class="deep">📌 图象题四步：① 看<b>坐标轴</b>（x-t 还是 v-t？）② 看<b>斜率</b> ③ 看<b>面积</b>（x-t面积无意义）④ 看<b>截距与交点</b>。</div>
+    </div>
+  </section>
+
+  <!-- 24 模块四 分隔 -->
+  <section class="slide slide-divider" data-narration="第四部分，追及相遇问题。这是运动学的重点和难点，也是高考常客。核心一句话：追上，就是两个物体在同一时刻到达同一位置。">
+    <div class="num">模 块 四</div>
+    <h2>追及相遇问题</h2>
+    <div class="en">临界条件 · 速度相等 · 四种解法</div>
+  </section>
+
+  <!-- 25 基本思路 -->
+  <section class="slide" data-narration="解追及相遇，按五步走。第一，设定研究对象，明确是哪两个物体在动。第二，画运动过程示意图，把情景可视化。第三，找三个关系：时间关系，谁先出发、运动时间是否相等；位移关系，追上时位移满足什么；速度关系，恰好追上或恰好追不上的临界是什么。第四，列方程。第五，验证结果是否合理。其中最关键的是临界条件——速度相等时能不能追上。">
+    <div class="slide-head"><span class="sec">思路</span><h3>追及相遇 · 基本思路</h3></div>
+    <div class="slide-body">
+      <ol>
+        <li><strong>设定对象</strong>：明确是哪两个物体在运动</li>
+        <li><strong>画示意图</strong>：把运动过程可视化</li>
+        <li><strong>找关系</strong>：
+          <ul>
+            <li>时间关系：是否同时？谁先出发？</li>
+            <li>位移关系：追上时位移满足什么？</li>
+            <li>速度关系：恰好追上/追不上的<b>临界</b>？</li>
+          </ul>
+        </li>
+        <li><strong>列方程求解</strong></li>
+        <li><strong>验证合理性</strong></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 26 两种模型 -->
+  <section class="slide" data-narration="两个典型模型，共同的关键词都是“速度相等”。模型一，匀速追匀加速：后车匀加速，当它的速度追上前面匀速车的速度时，两者距离最小，如果这时还没追上，就永远追不上了——所以速度相等且位置相同，是恰好追上的临界。模型二，匀减速追匀速：后车匀减速，速度减到和前车相等时距离最小，这时还没撞上，之后距离拉大就不会撞了，那是恰好不相撞的临界。记住：速度相等时刻，是判断追得上追不上的分水岭。">
+    <div class="slide-head"><span class="sec">模型</span><h3>两种典型模型 · 临界条件</h3></div>
+    <div class="slide-body">
+      <div class="cols">
+        <div class="col card">
+          <b>模型一：匀速追匀加速</b><br>
+          后车匀加速，当 $v_乙=v_1$ 时距离最小；<br>此时未追上 → 永远追不上。<br>
+          <b>临界</b>：$v_乙=v_1$ 且位置相同 → 恰好追上。
+        </div>
+        <div class="col card">
+          <b>模型二：匀减速追匀速</b><br>
+          后车匀减速，当 $v_乙=v_1$ 时距离最小；<br>此时未撞 → 之后拉大，不会撞。<br>
+          <b>临界</b>：$v_乙=v_1$ 且位置相同 → 恰好不相撞。
+        </div>
+      </div>
+      <div class="deep">🔑 记忆口诀：<b>速度相等是临界</b>——此时间距最小（或最大），是能否追上/相撞的判断时刻。</div>
+    </div>
+  </section>
+
+  <!-- 27 解题方法 -->
+  <section class="slide" data-narration="追及相遇有四种常用解法。公式法，列位移方程求解，最通用。图象法，画v-t图用面积分析，过程复杂时最直观。相对运动法，选一个物体作参考系，技巧性强但容易出错，要慎用。数学极值法，把距离写成关于时间的函数求最小值，用来判断能否追上。建议大家以公式法打底，图象法辅助理解。">
+    <div class="slide-head"><span class="sec">方法</span><h3>追及相遇 · 解题方法</h3></div>
+    <div class="slide-body">
+      <table>
+        <thead><tr><th>方法</th><th>思路</th><th>适用</th></tr></thead>
+        <tbody>
+          <tr><td>公式法</td><td>列位移方程求解</td><td>大多数问题</td></tr>
+          <tr><td>图象法</td><td>画 v-t 图，用面积分析</td><td>过程复杂、需直观</td></tr>
+          <tr><td>相对运动法</td><td>选一物体为参考系</td><td>技巧性强，慎用</td></tr>
+          <tr><td>数学极值法</td><td>距离函数求最小值</td><td>判断能否追上</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 28 模块五 分隔 -->
+  <section class="slide slide-divider" data-narration="第五部分，也是收尾，重要的解题思想与方法。公式是死的，思想是活的。把这几个思想内化了，你才能以不变应万变。">
+    <div class="num">模 块 五</div>
+    <h2>解题思想与方法</h2>
+    <div class="en">逆向思维 · 对称法 · 分段法 · 整体法</div>
+  </section>
+
+  <!-- 29 逆向思维 + 刹车 -->
+  <section class="slide" data-narration="先说逆向思维，这是性价比最高的一个。对于末速度为零的匀减速运动，可以把它倒过来看成初速度为零的匀加速，加速度大小不变。最典型的应用是刹车问题。现在请<b>暂停视频</b>，拿出纸笔，自己先用常规法算一遍这道刹车题的位移，再对照屏幕上的逆向法，推完之后再继续播放。你算出来了吗？常规做法先算刹车时间只有4秒，说明5秒时车已停，再用 v 方等于 2ax 求出位移；逆向思维更妙：把刹车倒过来看成从静止匀加速4秒，位移等于二分之一乘5乘16等于40米。重点提醒：刹车问题一定要先算刹车时间，题目给的时间可能比刹车时间长，车早停了！">
+    <div class="slide-head"><span class="sec">思想</span><h3>逆向思维法 · 刹车问题</h3></div>
+    <div class="slide-body">
+      <div class="card"><b>逆向思维</b>：末速为零的匀减速 → 倒看为初速为零的匀加速（加速度大小同）。<br>典型：刹车、竖直上抛到顶、子弹打木块停下。</div>
+      <p><b>例题</b>：汽车 $v_0=20\,\mathrm{m/s}$，刹停加速度 $5\,\mathrm{m/s^2}$，求 $5\,\mathrm{s}$ 内位移。</p>
+      <div class="cols">
+        <div class="col tip">常规：刹车时间 $t=\frac{v_0}{a}=4\,\mathrm{s}$，车已停 → 用 $v^2=2ax$ 求位移。</div>
+        <div class="col deep">逆向：从静止以 $5\,\mathrm{m/s^2}$ 匀加速 $4\,\mathrm{s}$：<br>$x=\frac12 at^2=\frac12\times5\times16=40\,\mathrm{m}$。</div>
+      </div>
+      <div class="pause">
+        <div class="icon">🛑</div>
+        <div class="txt"><b>暂停视频！</b><p>自己先用常规法算一遍刹车位移，再对比逆向法。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 30 对称/分段/整体 -->
+  <section class="slide" data-narration="再说另外三个思想。对称法，专用于竖直上抛：上升和下落关于最高点对称，同一位置上升和下降速度大小相等方向相反，同一段距离上下时间相等。分段法，处理多过程问题：先按加速度变化把运动分成几段，逐段分析用谁的规律，再找联系——前一段的末速度等于后一段的初速度，最后列方程。整体法，对全过程加速度不变的运动，比如竖直上抛，可以全过程套公式，但务必注意正负号。">
+    <div class="slide-head"><span class="sec">思想</span><h3>对称法 · 分段法 · 整体法</h3></div>
+    <div class="slide-body">
+      <div class="card"><b>对称法</b>（竖直上抛）：同位置上下速度等大反向；同段距离上下时间相等。</div>
+      <div class="card"><b>分段法</b>（多过程）：① 分段 ② 逐段分析 ③ 找联系（前段末速=后段初速）④ 列方程。</div>
+      <div class="card"><b>整体法</b>（全过程 $a$ 不变，如竖直上抛）：全过程套公式，<b>务必规定正方向、带符号</b>。</div>
+      <div class="tip">🚀 典型多过程：匀加速 → 匀速 → 匀减速（电梯、汽车起步刹车）。</div>
+    </div>
+  </section>
+
+  <!-- 31 十大易错点 -->
+  <section class="slide" data-narration="最后，运动学十大易错点，每条都对应一个真实丢分陷阱。位移路程混淆、平均速度大小当成平均速率、用加速度正负判断速度增减、刹车直接代时间、忽略公式适用条件、矢量不带符号、x-t和v-t搞混、v-t交点当相遇、追及不判临界、结果不检验。把这十条贴在书桌前，每次做题前扫一眼，能少丢很多分。">
+    <div class="slide-head"><span class="sec">易错</span><h3>运动学十大易错点</h3></div>
+    <div class="slide-body">
+      <table>
+        <thead><tr><th>序号</th><th>易错点</th><th>正确做法</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>位移和路程混淆</td><td>问位移答大小+方向，问路程答大小</td></tr>
+          <tr><td>2</td><td>平均速度大小=平均速率</td><td>仅单向直线相等，一般不相等</td></tr>
+          <tr><td>3</td><td>加速度正负判速度增减</td><td>看 $a$ 与 $v$ 方向关系</td></tr>
+          <tr><td>4</td><td>刹车直接代入时间</td><td>先算刹车时间，判断是否已停</td></tr>
+          <tr><td>5</td><td>忽略公式适用条件</td><td>匀变速公式仅 $a$ 恒定</td></tr>
+          <tr><td>6</td><td>矢量不带符号</td><td>先定正方向，带符号运算</td></tr>
+          <tr><td>7</td><td>x-t 与 v-t 搞混</td><td>先看坐标轴！斜率意义不同</td></tr>
+          <tr><td>8</td><td>v-t 交点当相遇</td><td>交点是速度相等，非相遇</td></tr>
+          <tr><td>9</td><td>追及不判临界</td><td>先看速度相等时能否追上</td></tr>
+          <tr><td>10</td><td>结果不检验</td><td>代入原题验证合理性</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 32 复习清单 + 结尾 -->
+  <section class="slide slide-cover" data-narration="到这里，运动学就系统地过了一遍。最后给你一份通关清单：三个基本公式、三个重要推论，能不能合上书独立推导？x-t和v-t图的斜率面积交点，能不能脱口而出？追及相遇的临界条件记牢了吗？十大易错点扫清了吗？如果推导还卡壳，请回到对应页面再推一遍。真正的学习发生在你停下来的那支笔上。加油！">
+    <div class="kicker">复 习 通 关 清 单</div>
+    <h1 style="font-size:46px">你能独立做到吗？</h1>
+    <div class="divider"></div>
+    <div class="meta" style="text-align:left; max-width:760px; line-height:2.1;">
+      ☑ 三个基本公式 + 三个推论，合上书独立推导<br>
+      ☑ 说清 x-t / v-t 图的斜率、面积、交点、截距<br>
+      ☑ 牢记追及相遇"速度相等是临界"<br>
+      ☑ 刹车问题先算刹车时间<br>
+      ☑ 矢量运算先定正方向、带符号<br>
+      ☑ 十大易错点逐条规避
+    </div>
+    <div class="divider" style="margin-top:26px"></div>
+    <div class="meta">真正的学习，发生在你停下来的那支笔上。加油！</div>
+  </section>
+
+  <!-- 页脚 -->
+  <div id="footer">
+    <span class="brand">运动学复习讲解</span>
+    <span id="pagenum">1 / 33</span>
+  </div>
+
+  <!-- 导航 -->
+  <div class="nav">
+    <button id="prev" title="上一页 (←)">‹</button>
+    <button id="next" title="下一页 (→ / 空格)">›</button>
+  </div>
+  <div id="hint">← → 翻页 · 空格下一页 · 点击左右半屏翻页</div>
+
+</div>
+
+<script>
+(function(){
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let idx = 0;
+
+  // URL 参数：?slide=N 跳到指定页；?autohide=1 隐藏导航（用于视频截图）
+  const params = new URLSearchParams(location.search);
+  const startSlide = parseInt(params.get('slide'), 10);
+  if (params.get('autohide') === '1') document.body.classList.add('autohide');
+  if (!isNaN(startSlide) && startSlide >= 1 && startSlide <= total) idx = startSlide - 1;
+
+  const progress = document.getElementById('progress');
+  const pagenum = document.getElementById('pagenum');
+  const prevBtn = document.getElementById('prev');
+  const nextBtn = document.getElementById('next');
+
+  function render(){
+    slides.forEach((s,i)=> s.classList.toggle('active', i===idx));
+    progress.style.width = ((idx+1)/total*100) + '%';
+    pagenum.textContent = (idx+1) + ' / ' + total;
+    prevBtn.disabled = (idx===0);
+    nextBtn.disabled = (idx===total-1);
+  }
+  function go(n){ idx = Math.max(0, Math.min(total-1, n)); render(); }
+
+  prevBtn.addEventListener('click', e=>{ e.stopPropagation(); go(idx-1); });
+  nextBtn.addEventListener('click', e=>{ e.stopPropagation(); go(idx+1); });
+
+  document.addEventListener('keydown', e=>{
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); go(idx+1); }
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); go(idx-1); }
+    else if(e.key==='Home'){ go(0); }
+    else if(e.key==='End'){ go(total-1); }
+  });
+
+  // 点击屏幕左右半边翻页
+  document.getElementById('stage').addEventListener('click', e=>{
+    if(e.target.closest('.nav')) return;
+    const x = e.clientX;
+    if(x < window.innerWidth*0.5) go(idx-1); else go(idx+1);
+  });
+
+  // 等比缩放舞台
+  function fit(){
+    const s = Math.min(window.innerWidth/1280, window.innerHeight/720);
+    const stage = document.getElementById('stage');
+    stage.style.transform = 'translate(-50%,-50%) scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit);
+  fit();
+  render();
+})();
+</script>
+</body>
+</html>
