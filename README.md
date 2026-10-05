@@ -81,6 +81,27 @@ end tell
 - **必须设置环境变量 `YNU_NEW_API_KEY`**（网关密钥，不随仓库分发，需自行配置）；可选 `YNU_NEW_API_ENDPOINT` 覆盖网关地址
 - 详见 `higgs-voice-tts/SKILL.md`
 
+### wx-miniprogram-page-refresh（微信小程序页面刷新机制）
+
+**路径**: `wx-miniprogram-page-refresh/SKILL.md`
+
+**功能**: 提供微信小程序页面间数据刷新机制的最佳实践——用本地存储标记控制刷新，避免 `onShow` 频繁刷新。
+
+**适用场景**:
+- 列表页数据变更后需要刷新
+- 详情页数据编辑后需要同步
+- 跨页面数据状态同步
+- 避免 `onShow` 每次都刷新导致性能浪费
+
+**核心特性**:
+- 数据变更页用 `wx.setStorageSync('needRefreshXXX', true)` 打标记，目标页 `onShow` 里检查并立即清除，避免重复刷新
+- 标准化命名（`needRefresh` + 驼峰），支持单页 / 多页 / 条件刷新
+- 纯小程序原生 API，无额外依赖；自带完整示例与「方案对比」表
+
+**使用要求**:
+- 仅适用于微信小程序（JavaScript）
+- 详见 `wx-miniprogram-page-refresh/SKILL.md`
+
 ## 如何使用
 
 这些 Skills 可以在支持 Skill 系统的 AI 平台上使用，如:
