@@ -60,6 +60,27 @@ end tell
 - 依赖 Python 脚本、Node（Playwright）、ffmpeg、Higgs 配音技能
 - 详见 `make-explainer-video/SKILL.md` 的阶段说明与「关键坑速查」
 
+### higgs-voice-tts（Higgs 音色克隆 TTS）
+
+**路径**: `higgs-voice-tts/SKILL.md`
+
+**功能**: 用 Higgs Audio 大模型做中文 TTS，并克隆固定音色（默认样本：云南大学「听力训练」在用的那把男声）。文字转语音、中文配音、生成旁白/讲稿音频、批量合成 mp3。
+
+**适用场景**:
+- 中文文字转语音 / 配音 / 旁白
+- 需要**稳定统一音色**（多段合成同一把声音，不掉音色）
+- 配合 `make-explainer-video` 做讲解视频配音
+
+**核心特性**:
+- 音色克隆：传 `ref_audio`（自带 `assets/3-higgs-平台听力训练在用.mp3`）+ `ref_text`，多段之间保持同一把声音
+- 批量合成：JSON 输入按 id 落盘，支持 `--force` 重生成、跳过已存在文件断点续跑
+- `verify_voice.py` 做 F0 一致性校验（标准差 < 8Hz 判克隆生效）
+
+**使用要求**:
+- 依赖 Python、`ffmpeg`/`ffprobe`、Higgs TTS 网关
+- **必须设置环境变量 `YNU_NEW_API_KEY`**（网关密钥，不随仓库分发，需自行配置）；可选 `YNU_NEW_API_ENDPOINT` 覆盖网关地址
+- 详见 `higgs-voice-tts/SKILL.md`
+
 ## 如何使用
 
 这些 Skills 可以在支持 Skill 系统的 AI 平台上使用，如:
