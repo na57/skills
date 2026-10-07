@@ -73,19 +73,40 @@ node scripts/compose.mjs --geom scripts/example/geometry.svg \
 
 ## 进阶：TikZ 方案（几何与数学同源）
 
-```latex
-\documentclass[tikz,border=4pt]{standalone}
-\begin{document}
-\begin{tikzpicture}[scale=1]
-  \def\a{2} \def\b{3}
-  \draw[fill=#eef4ff] (0,0) arc (180:0:\a+\b) -- cycle;
-  \draw[thick] (0,0) node[below]{$A$} -- (\a+\b,0) node[below]{$B$};
-  \draw[orange] (\a,0) -- (\a,{sqrt((\a+\b)^2-\a^2)}) node[above]{$D$};
-  \node at (\a/2,0.4) {$AC=a$}; \node at (\a+\b/2,0.4) {$CB=b$};
-\end{tikzpicture}
-\end{document}
+完整可跑示例在 `scripts/example/tikz/`（同一张"半圆与几何平均"图，几何和
+公式写在**同一份 `.tex`** 里，TeX 同时排版两者，天然同源；改 `\a`/`\b`
+两个参数即可换图）：
+
+```bash
+bash scripts/example/tikz/build.sh      # 生成 semicircle-mean.svg（顺带 PDF）
 ```
-导出：`pdf2svg` 或 `dvisvgm` 得到 SVG。
+
+### 导出 SVG 的关键坑：不要走默认 PostScript 路线
+
+默认 `latex` 用 dvips(PostScript) 驱动，此时 `dvisvgm` 要把 PostScript
+special 转成图形，**依赖 Ghostscript**——没装或找不到 `libgs` 时会报
+"PostScript specials ignored"，产物只剩文字、几何全丢（本 skill 作者实测踩过）。
+
+更稳的做法：编译时强制 pgf 用**原生 dvisvgm 驱动**，完全不需要 Ghostscript：
+
+```bash
+# 在 .tex 前面加一行驱动声明（原文件不动，仍可 pdflatex 出 PDF）
+printf '\\def\\pgfsysdriver{pgfsys-dvisvgm.def}\n' | cat - figure.tex > build.tex
+latex -interaction=nonstopmode build.tex
+dvisvgm -n -o figure.svg build.dvi      # -n：文字转路径，SVG 自包含
+```
+
+判别方法：若 dvisvgm 报 "hundreds of PostScript specials ignored" 且
+SVG 尺寸只有几十 pt——几何丢了；强制驱动后会降到个位数（颜色等残留，
+不影响画面）且尺寸是完整图幅。
+
+只想要 PDF：直接 `pdflatex figure.tex`；PDF 转 SVG 可用
+`pdftocairo -svg` / `pdf2svg` / `inkscape --export-type=svg`。
+
+### 何时选 TikZ 而不是 MathJax 合成
+
+图形本身就是几何/坐标类（圆、三角、矩阵、向量）→ TikZ 单源码最省心；
+图形是 AI 生成的示意图、只想替换公式 → 用本 skill 的 MathJax 合成更轻量。
 
 ## 一句话总结
 

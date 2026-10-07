@@ -17,3 +17,15 @@ node scripts/compose.mjs --geom scripts/example/geometry.svg \
 
 `demo.svg` 即为一张"以 AB 为直径的半圆、分点 C、垂足 D"的标准几何图，其中
 `AB = a + b`、`AC = a`、`CB = b`、`CD = √ab` 全部由 MathJax 从 LaTeX 排版而成。
+
+## 路径 A：TikZ（几何与数学同源）
+
+如果图形本身就是几何/坐标类，可以用纯 LaTeX 单文件方案（图形与公式同源，
+无需合成脚本）：
+
+```bash
+bash scripts/example/tikz/build.sh   # 需要 TeX Live（latex + dvisvgm）
+```
+
+生成同一张半圆-几何平均图的 `semicircle-mean.svg`（改 `semicircle-mean.tex`
+里的 `\a`/`\b` 即可换图）。详见 [`scripts/example/tikz/README.md`](./scripts/example/tikz/README.md)。
