@@ -1,0 +1,16 @@
+{
+  "name": "math-figure-svg",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "将带数学公式的图形绘制成规范 SVG：几何走路径，公式走 MathJax，脚本合成。",
+  "scripts": {
+    "demo": "node scripts/compose.mjs --geom scripts/example/geometry.svg --labels scripts/example/labels.json --out demo.svg --png"
+  },
+  "dependencies": {
+    "mathjax-full": "^3.2.2"
+  },
+  "optionalDependencies": {
+    "@resvg/resvg-js": "^2.6.0"
+  }
+}
