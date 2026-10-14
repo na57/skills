@@ -102,6 +102,29 @@ end tell
 - 仅适用于微信小程序（JavaScript）
 - 详见 `wx-miniprogram-page-refresh/SKILL.md`
 
+### ynu-sso-login（云南大学 SSO 微信扫码登录）
+
+**路径**: `ynu-sso-login/SKILL.md`
+
+**功能**: 登录云南大学（YNU）统一身份认证（CAS）保护的管理后台——minos 管控台、融合门户 casp、统一身份认证 ids。自动打开目标、跳到 `ids.ynu.edu.cn` 扫码页、截图二维码展示给用户，用户微信扫码确认后自动完成登录。
+
+**适用场景**:
+- 登录 minos / 融合门户 / 统一身份认证等 YNU 内部管理系统
+- 目标系统需要做后续操作，但先要完成登录
+- 账号密码 + 图片验证码无法自动识别时，统一改走微信扫码
+
+**核心特性**:
+- 支持服务别名（minos / casp / portal / ids / auth）或直接传完整 URL
+- 自动处理 minos 本地登录页的「统一身份认证登录」入口（`.login-bottom-text`）跳转到 CAS
+- 二维码过期自动 reload 重截；同一浏览器会话内 SSO 可复用（登过一个 YNU 系统，开别的常免扫码）
+- 人机协作：脚本负责打开 / 导航 / 截图 / 轮询，AI 负责展示二维码并等待扫码
+
+**使用要求**:
+- 本机需安装 `agent-browser`：`npm install -g agent-browser && agent-browser install`
+- 用户手机需装微信（或企业微信 / 今日校园 APP，按需切换 tab）
+- 需在校园网或 WebVPN 环境下访问
+- 详见 `ynu-sso-login/SKILL.md`
+
 ## 如何使用
 
 这些 Skills 可以在支持 Skill 系统的 AI 平台上使用，如:
