@@ -125,6 +125,27 @@ end tell
 - 需在校园网或 WebVPN 环境下访问
 - 详见 `ynu-sso-login/SKILL.md`
 
+### laya MCP（System One 决策接口封装）
+
+**路径**: `mcp/laya/`
+
+**功能**: 把云南大学 new-api 网关的 laya (System One) 决策接口封装为 MCP server。对任意文本提出选择题组，返回带概率分布的判定结果。
+
+**适用场景**:
+- 需要对文本做多选一判定并查看完整概率分布（不止 top1）
+- 资产清查类任务：批量判定设备是否属于算力（GPU 卡/图形工作站/带独显主机）
+- 在 Trae / Claude 等 MCP 客户端中直接调用 laya 模型
+
+**核心特性**:
+- 3 个工具：`laya_ask`（通用选择题组）、`laya_judge_asset`（单条）、`laya_judge_assets`（批量 200 条，并发 1-24）
+- 双通道判定口径：GPU 关键词命中 或 模型概率 ≥ 阈值（默认 0.45），自动兜底
+- 一次请求可带多道选择题，实测 24 并发稳定
+
+**使用要求**:
+- 依赖 `uv`，Python SDK 钉版 `mcp<2`
+- **必须设置环境变量 `NEWAPI_KEY`**（new-api 令牌，不随仓库分发）；端点为校内地址，需校园网 / VPN
+- 详见 `mcp/laya/README.md`
+
 ## 如何使用
 
 这些 Skills 可以在支持 Skill 系统的 AI 平台上使用，如:
