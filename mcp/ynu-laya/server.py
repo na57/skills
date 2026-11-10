@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-laya-mcp：把云南大学 new-api 网关的 laya (System One) 决策接口封装为 MCP 工具。
+ynu-laya：把云南大学 new-api 网关的 laya (System One) 决策接口封装为 MCP 工具。
 
 System One 接口调用方式（2026-11 算力资产清查时验证可用）：
   POST https://new-api-itc.ynu.edu.cn/v1/systemone
@@ -75,7 +75,7 @@ KW = re.compile(
     r'|显卡|图形工作站|图形加速|深度学习|高性能计算',
     re.I)
 
-mcp = FastMCP('laya', instructions='云南大学 laya (System One) 决策模型：对文本提出选择题组并返回概率分布')
+mcp = FastMCP('ynu-laya', instructions='云南大学 laya (System One) 决策模型：对文本提出选择题组并返回概率分布')
 
 
 def call_systemone(state: str, questions: dict, model: str = MODEL,
@@ -88,7 +88,7 @@ def call_systemone(state: str, questions: dict, model: str = MODEL,
             req = urllib.request.Request(URL, data=body, headers={
                 'Authorization': f'Bearer {KEY}',
                 'Content-Type': 'application/json',
-                'User-Agent': 'laya-mcp/1.0',
+                'User-Agent': 'ynu-laya/1.0',
             })
             with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
                 return json.loads(r.read())

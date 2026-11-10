@@ -125,9 +125,9 @@ end tell
 - 需在校园网或 WebVPN 环境下访问
 - 详见 `ynu-sso-login/SKILL.md`
 
-### laya MCP（System One 决策接口封装）
+### ynu-laya MCP（System One 决策接口封装）
 
-**路径**: `mcp/laya/`
+**路径**: `mcp/ynu-laya/`
 
 **功能**: 把云南大学 new-api 网关的 laya (System One) 决策接口封装为 MCP server。对任意文本提出选择题组，返回带概率分布的判定结果。
 
@@ -144,7 +144,7 @@ end tell
 **使用要求**:
 - 依赖 `uv`，Python SDK 钉版 `mcp<2`
 - **必须设置环境变量 `NEWAPI_KEY`**（new-api 令牌，不随仓库分发）；端点为校内地址，需校园网 / VPN
-- 详见 `mcp/laya/README.md`
+- 详见 `mcp/ynu-laya/README.md`
 
 ## 如何使用
 

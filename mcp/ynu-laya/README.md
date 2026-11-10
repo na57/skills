@@ -1,4 +1,4 @@
-# laya MCP
+# ynu-laya MCP
 
 把云南大学 new-api 网关的 **laya (System One) 决策接口**封装为 MCP server，供 Trae / Claude 等 MCP 客户端直接调用。对任意文本提出选择题组，返回带概率分布的判定结果。
 
@@ -58,9 +58,9 @@ Body:
 
 ```json
 {
-  "laya": {
+  "ynu-laya": {
     "command": "/path/to/uv",
-    "args": ["run", "--with", "mcp<2", "/path/to/skills/mcp/laya/server.py"],
+    "args": ["run", "--with", "mcp<2", "/path/to/skills/mcp/ynu-laya/server.py"],
     "env": { "NEWAPI_KEY": "sk-你的new-api令牌" }
   }
 }
@@ -83,7 +83,7 @@ Body:
 ## 快速验证
 
 ```bash
-cd mcp/laya
+cd mcp/ynu-laya
 NEWAPI_KEY=sk-你的令牌 uv run --with "mcp<2" python -c "
 import server
 print(server.judge_one('Dell R740 | model: Tesla V100', '', '', 0.45))
