@@ -102,6 +102,33 @@ end tell
 - 仅适用于微信小程序（JavaScript）
 - 详见 `wx-miniprogram-page-refresh/SKILL.md`
 
+### ynu-course 系列（云大学堂课程管理）
+
+**路径**: `ynu-course/<skill 名>/SKILL.md`
+
+**功能**: 一组在云南大学「云大学堂」（course.ynu.edu.cn）后台管理课程的 skill，通过 WorkBuddy 内置浏览器操作：
+
+| Skill | 用途 |
+|---|---|
+| `ynu-course-create-public` | 新建公开课（不使用课程包，直接开课） |
+| `ynu-course-open-manage` | 从"我的课程"打开某门课的课程管理后台 |
+| `ynu-course-edit-info` | 编辑课程基本信息（名称 / 标签 / 简介 / 封面等） |
+| `ynu-course-set-chapters` | 设置章节结构（章 → 小节：新建章/小节、改名、展开核对） |
+
+**适用场景**:
+- 在云大学堂开课、改课程信息、按教学大纲搭建章节目录
+- 需要可复用的、带踩坑记录的浏览器自动化流程
+
+**核心特性**:
+- 各 skill 职责单一，可串联使用：create-public → open-manage → edit-info / set-chapters
+- `set-chapters` 内含实测踩坑：输入框是插入而非替换、全选快捷键无效须退格清空、弹窗淡入延迟、小节图标需悬停等
+- 章节结构不可编造，用户没说清时先确认；一个大纲有分组和讲次两层时，映射方式交给用户拍板
+
+**使用要求**:
+- 需已登录云大学堂后台（登录页需用户自行输入凭据）
+- 依赖 WorkBuddy 内置浏览器（`mcp__browser__*` 工具）
+- 只搭章节骨架，不上传教学内容、不发布课程
+
 ### ynu-sso-login（云南大学 SSO 微信扫码登录）
 
 **路径**: `ynu-sso-login/SKILL.md`
