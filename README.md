@@ -114,14 +114,16 @@ end tell
 | `ynu-course-open-manage` | 从"我的课程"打开某门课的课程管理后台 |
 | `ynu-course-edit-info` | 编辑课程基本信息（名称 / 标签 / 简介 / 封面等） |
 | `ynu-course-set-chapters` | 设置章节结构（章 → 小节：新建章/小节、改名、展开核对） |
+| `ynu-course-add-homework` | 布置作业（建草稿、设置章节/截止时间、从讲义原题手工录入题目、核对；默认草稿不发布） |
 
 **适用场景**:
 - 在云大学堂开课、改课程信息、按教学大纲搭建章节目录
 - 需要可复用的、带踩坑记录的浏览器自动化流程
 
 **核心特性**:
-- 各 skill 职责单一，可串联使用：create-public → open-manage → edit-info / set-chapters
+- 各 skill 职责单一，可串联使用：create-public → open-manage → edit-info / set-chapters / add-homework
 - `set-chapters` 内含实测踩坑：输入框是插入而非替换、全选快捷键无效须退格清空、弹窗淡入延迟、小节图标需悬停等
+- `add-homework` 内含实测踩坑：CKEditor 填完必须再用鼠标点一下才认内容、敏感词过滤、滚动后坐标漂移、默认草稿不发布、不用 AI 出题照抄原题
 - 章节结构不可编造，用户没说清时先确认；一个大纲有分组和讲次两层时，映射方式交给用户拍板
 
 **使用要求**:
